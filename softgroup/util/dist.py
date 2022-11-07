@@ -91,7 +91,7 @@ def collect_results_cpu(result_part, size, tmpdir=None):
         os.makedirs(tmpdir, exist_ok=True)
     # dump the part result to the dir
     pickle.dump(result_part, open(osp.join(tmpdir, f'part_{rank}.pkl'), 'wb'))
-    dist.barrier()
+    #dist.barrier()
     # collect all parts
     if rank != 0:
         return None
