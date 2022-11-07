@@ -149,7 +149,7 @@ def main():
             results.append(result)
             progress_bar.update(world_size)
         progress_bar.close()
-        results = collect_results_cpu(results, len(dataset))
+        results = collect_results_cpu(results, len(dataset), "./tmp")
     if is_main_process():
         for res in results:
             scan_ids.append(res['scan_id'])
