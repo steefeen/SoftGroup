@@ -8,7 +8,7 @@ import numpy as np
 
 from ..util import rle_decode
 from .instance_eval_util import get_instances
-
+import logging
 
 class ScanNetEval(object):
 
@@ -312,9 +312,10 @@ class ScanNetEval(object):
         sep = ''
         col1 = ':'
         lineLen = 64
+        logger = logging.getLogger('softgroup')
 
-        print()
-        print('#' * lineLen)
+        logger.info()
+        logger.info('#' * lineLen)
         line = ''
         line += '{:<15}'.format('what') + sep + col1
         line += '{:>8}'.format('AP') + sep
@@ -324,8 +325,8 @@ class ScanNetEval(object):
         line += '{:>8}'.format('RC_50%') + sep
         line += '{:>8}'.format('RC_25%') + sep
 
-        print(line)
-        print('#' * lineLen)
+        logger.info(line)
+        logger.info('#' * lineLen)
 
         for (li, label_name) in enumerate(self.eval_class_labels):
             ap_avg = avgs['classes'][label_name]['ap']
@@ -341,7 +342,7 @@ class ScanNetEval(object):
             line += sep + '{:>8.3f}'.format(rc_avg) + sep
             line += sep + '{:>8.3f}'.format(rc_50o) + sep
             line += sep + '{:>8.3f}'.format(rc_25o) + sep
-            print(line)
+            logger.info(line)
 
         all_ap_avg = avgs['all_ap']
         all_ap_50o = avgs['all_ap_50%']
@@ -350,7 +351,7 @@ class ScanNetEval(object):
         all_rc_50o = avgs['all_rc_50%']
         all_rc_25o = avgs['all_rc_25%']
 
-        print('-' * lineLen)
+        logger.info('-' * lineLen)
         line = '{:<15}'.format('average') + sep + col1
         line += '{:>8.3f}'.format(all_ap_avg) + sep
         line += '{:>8.3f}'.format(all_ap_50o) + sep
@@ -358,9 +359,9 @@ class ScanNetEval(object):
         line += '{:>8.3f}'.format(all_rc_avg) + sep
         line += '{:>8.3f}'.format(all_rc_50o) + sep
         line += '{:>8.3f}'.format(all_rc_25o) + sep
-        print(line)
-        print('#' * lineLen)
-        print()
+        logger.info(line)
+        logger.info('#' * lineLen)
+        logger.info()
 
     def write_result_file(self, avgs, filename):
         _SPLITTER = ','

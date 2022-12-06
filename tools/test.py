@@ -125,7 +125,7 @@ def main():
     cfg = Munch.fromDict(yaml.safe_load(cfg_txt))
     if args.dist:
         init_dist()
-    logger = get_root_logger()
+    logger = get_root_logger(log_file="/content/drive/MyDrive/Hauptseminar/log")
 
     model = SoftGroup(**cfg.model).cuda()
     if args.dist:
