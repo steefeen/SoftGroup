@@ -314,7 +314,7 @@ class ScanNetEval(object):
         lineLen = 64
         logger = logging.getLogger('softgroup')
 
-        logger.info()
+        #logger.info(" ")
         logger.info('#' * lineLen)
         line = ''
         line += '{:<15}'.format('what') + sep + col1
@@ -361,7 +361,7 @@ class ScanNetEval(object):
         line += '{:>8.3f}'.format(all_rc_25o) + sep
         logger.info(line)
         logger.info('#' * lineLen)
-        logger.info()
+        #logger.info(" ")
 
     def write_result_file(self, avgs, filename):
         _SPLITTER = ','
