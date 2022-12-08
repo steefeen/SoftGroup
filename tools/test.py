@@ -129,7 +129,7 @@ def evaluate(args):
     cfg = Munch.fromDict(yaml.safe_load(cfg_txt))
     if args.dist:
         init_dist()
-    logger = get_root_logger(log_file="/content/drive/MyDrive/Hauptseminar/log2")
+    logger = get_root_logger(log_file="/content/drive/MyDrive/Hauptseminar/log/log.log")
 
     model = SoftGroup(**cfg.model).cuda()
     if args.dist:
@@ -212,16 +212,13 @@ def evaluate(args):
 
 
 
-def main(args=None):
-    if args is None:
-        args = get_args()
-        print(args)
+def main():
     args = get_args()
     cfg_txt = open(args.config, 'r').read()
     cfg = Munch.fromDict(yaml.safe_load(cfg_txt))
     if args.dist:
         init_dist()
-    logger = get_root_logger(log_file="/content/drive/MyDrive/Hauptseminar/log")
+    logger = get_root_logger(log_file="/content/drive/MyDrive/Hauptseminar/log/log.log")
 
     model = SoftGroup(**cfg.model).cuda()
     if args.dist:
@@ -285,7 +282,6 @@ def main(args=None):
             return
         logger.info('Save results')
         if 'semantic' in eval_tasks:
-            logger.info('semantic')
             save_npy(args.out, 'coords', scan_ids, coords)
             save_npy(args.out, 'colors', scan_ids, colors)
             save_npy(args.out, 'semantic_pred', scan_ids, sem_preds)
@@ -293,12 +289,10 @@ def main(args=None):
             save_npy(args.out, 'offset_pred', scan_ids, offset_preds)
             save_npy(args.out, 'offset_label', scan_ids, offset_labels)
         if 'instance' in eval_tasks:
-            logger.info('instance')
             nyu_id = dataset.NYU_ID
             save_pred_instances(args.out, 'pred_instance', scan_ids, pred_insts, nyu_id)
             save_gt_instances(args.out, 'gt_instance', scan_ids, gt_insts, nyu_id)
         if 'panoptic' in eval_tasks:
-            logger.info('panoptic')
             save_panoptic(args.out, 'panoptic', scan_ids, panoptic_preds, dataset.learning_map_inv,
                           cfg.model.semantic_classes)
 
