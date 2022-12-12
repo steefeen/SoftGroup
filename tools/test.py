@@ -175,6 +175,8 @@ def evaluate(args):
             logger.info('Evaluate instance segmentation')
             eval_min_npoint = getattr(cfg, 'eval_min_npoint', None)
             scannet_eval = ScanNetEval(dataset.CLASSES, eval_min_npoint)
+            print("instance evaluate")
+            logger.error("instance evaluate")
             scannet_eval.evaluate(pred_insts, gt_insts)
         if 'panoptic' in eval_tasks:
             logger.info('Evaluate panoptic segmentation')
@@ -209,6 +211,7 @@ def evaluate(args):
             logger.info('panoptic')
             save_panoptic(args.out, 'panoptic', scan_ids, panoptic_preds, dataset.learning_map_inv,
                           cfg.model.semantic_classes)
+    logger.info("end")
 
 
 
@@ -295,7 +298,7 @@ def main():
         if 'panoptic' in eval_tasks:
             save_panoptic(args.out, 'panoptic', scan_ids, panoptic_preds, dataset.learning_map_inv,
                           cfg.model.semantic_classes)
-
+    logger.info("end")
 
 if __name__ == '__main__':
     main()

@@ -399,6 +399,6 @@ class ScanNetEval(object):
         ap_scores, rc_scores = self.evaluate_matches(matches)
         avgs = self.compute_averages(ap_scores, rc_scores)
 
-        # print
+        print(avgs)
         self.print_results(avgs)
         return avgs
