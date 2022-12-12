@@ -316,6 +316,7 @@ class ScanNetEval(object):
         logger = get_root_logger(log_file="/content/drive/MyDrive/Hauptseminar/log/log.log")
 
         #logger.info(" ")
+        print('#' * lineLen)
         logger.info('#' * lineLen)
         line = ''
         line += '{:<15}'.format('what') + sep + col1
@@ -326,7 +327,9 @@ class ScanNetEval(object):
         line += '{:>8}'.format('RC_50%') + sep
         line += '{:>8}'.format('RC_25%') + sep
 
+        print(line)
         logger.info(line)
+        print('#' * lineLen)
         logger.info('#' * lineLen)
 
         for (li, label_name) in enumerate(self.eval_class_labels):
@@ -343,6 +346,7 @@ class ScanNetEval(object):
             line += sep + '{:>8.3f}'.format(rc_avg) + sep
             line += sep + '{:>8.3f}'.format(rc_50o) + sep
             line += sep + '{:>8.3f}'.format(rc_25o) + sep
+            print(line)
             logger.info(line)
 
         all_ap_avg = avgs['all_ap']
@@ -352,6 +356,7 @@ class ScanNetEval(object):
         all_rc_50o = avgs['all_rc_50%']
         all_rc_25o = avgs['all_rc_25%']
 
+        print('-' * lineLen)
         logger.info('-' * lineLen)
         line = '{:<15}'.format('average') + sep + col1
         line += '{:>8.3f}'.format(all_ap_avg) + sep
@@ -360,7 +365,9 @@ class ScanNetEval(object):
         line += '{:>8.3f}'.format(all_rc_avg) + sep
         line += '{:>8.3f}'.format(all_rc_50o) + sep
         line += '{:>8.3f}'.format(all_rc_25o) + sep
+        print(line)
         logger.info(line)
+        print('#' * lineLen)
         logger.info('#' * lineLen)
         #logger.info(" ")
 
