@@ -9,6 +9,7 @@ import numpy as np
 from ..util import rle_decode
 from .instance_eval_util import get_instances
 import logging
+from softgroup.util import get_root_logger
 
 class ScanNetEval(object):
 
@@ -312,7 +313,7 @@ class ScanNetEval(object):
         sep = ''
         col1 = ':'
         lineLen = 64
-        logger = logging.getLogger('softgroup')
+        logger = get_root_logger(log_file="/content/drive/MyDrive/Hauptseminar/log/log.log")
 
         #logger.info(" ")
         logger.info('#' * lineLen)
