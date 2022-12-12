@@ -120,8 +120,6 @@ def save_panoptic(root, name, scan_ids, arrs, learning_map_inv, num_classes):
 
 
 def evaluate(args):
-    print("asdf")
-
     if args is None:
         args = get_args()
     print(args)
