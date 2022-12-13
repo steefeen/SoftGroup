@@ -119,10 +119,9 @@ def save_panoptic(root, name, scan_ids, arrs, learning_map_inv, num_classes):
     pool.starmap(save_panoptic_single, zip(paths, arrs, learning_map_invs, num_classes_list))
 
 
-def evaluate(args):
+def main(args=None):
     if args is None:
         args = get_args()
-    print(args)
     cfg_txt = open(args.config, 'r').read()
     cfg = Munch.fromDict(yaml.safe_load(cfg_txt))
     if args.dist:
@@ -173,8 +172,6 @@ def evaluate(args):
             logger.info('Evaluate instance segmentation')
             eval_min_npoint = getattr(cfg, 'eval_min_npoint', None)
             scannet_eval = ScanNetEval(dataset.CLASSES, eval_min_npoint)
-            print("instance evaluate")
-            logger.error("instance evaluate")
             scannet_eval.evaluate(pred_insts, gt_insts)
         if 'panoptic' in eval_tasks:
             logger.info('Evaluate panoptic segmentation')
@@ -211,92 +208,6 @@ def evaluate(args):
                           cfg.model.semantic_classes)
     logger.info("end")
 
-
-
-def main():
-    args = get_args()
-    cfg_txt = open(args.config, 'r').read()
-    cfg = Munch.fromDict(yaml.safe_load(cfg_txt))
-    if args.dist:
-        init_dist()
-    logger = get_root_logger(log_file="/content/drive/MyDrive/Hauptseminar/log/log.log")
-
-    model = SoftGroup(**cfg.model).cuda()
-    if args.dist:
-        model = DistributedDataParallel(model, device_ids=[torch.cuda.current_device()])
-    logger.info(f'Load state dict from {args.checkpoint}')
-    load_checkpoint(args.checkpoint, logger, model)
-
-    dataset = build_dataset(cfg.data.test, logger)
-    dataloader = build_dataloader(dataset, training=False, dist=args.dist, **cfg.dataloader.test)
-    results = []
-    scan_ids, coords, colors, sem_preds, sem_labels = [], [], [], [], []
-    offset_preds, offset_labels, inst_labels, pred_insts, gt_insts = [], [], [], [], []
-    panoptic_preds = []
-    _, world_size = get_dist_info()
-    progress_bar = tqdm(total=len(dataloader) * world_size, disable=not is_main_process())
-    eval_tasks = cfg.model.test_cfg.eval_tasks
-    with torch.no_grad():
-        model.eval()
-        for i, batch in enumerate(dataloader):
-            result = model(batch)
-            results.append(result)
-            progress_bar.update(world_size)
-        progress_bar.close()
-        results = collect_results_cpu(results, len(dataset), "./tmp")
-    if is_main_process():
-        for res in results:
-            scan_ids.append(res['scan_id'])
-            if 'semantic' in eval_tasks or 'panoptic' in eval_tasks:
-                sem_labels.append(res['semantic_labels'])
-                inst_labels.append(res['instance_labels'])
-            if 'semantic' in eval_tasks:
-                coords.append(res['coords_float'])
-                colors.append(res['color_feats'])
-                sem_preds.append(res['semantic_preds'])
-                offset_preds.append(res['offset_preds'])
-                offset_labels.append(res['offset_labels'])
-            if 'instance' in eval_tasks:
-                pred_insts.append(res['pred_instances'])
-                gt_insts.append(res['gt_instances'])
-            if 'panoptic' in eval_tasks:
-                panoptic_preds.append(res['panoptic_preds'])
-        if 'instance' in eval_tasks:
-            logger.info('Evaluate instance segmentation')
-            eval_min_npoint = getattr(cfg, 'eval_min_npoint', None)
-            scannet_eval = ScanNetEval(dataset.CLASSES, eval_min_npoint)
-            scannet_eval.evaluate(pred_insts, gt_insts)
-        if 'panoptic' in eval_tasks:
-            logger.info('Evaluate panoptic segmentation')
-            eval_min_npoint = getattr(cfg, 'eval_min_npoint', None)
-            panoptic_eval = PanopticEval(dataset.THING, dataset.STUFF, min_points=eval_min_npoint)
-            panoptic_eval.evaluate(panoptic_preds, sem_labels, inst_labels)
-        if 'semantic' in eval_tasks:
-            logger.info('Evaluate semantic segmentation and offset MAE')
-            ignore_label = cfg.model.ignore_label
-            evaluate_semantic_miou(sem_preds, sem_labels, ignore_label, logger)
-            evaluate_semantic_acc(sem_preds, sem_labels, ignore_label, logger)
-            evaluate_offset_mae(offset_preds, offset_labels, inst_labels, ignore_label, logger)
-
-        # save output
-        if not args.out:
-            return
-        logger.info('Save results')
-        if 'semantic' in eval_tasks:
-            save_npy(args.out, 'coords', scan_ids, coords)
-            save_npy(args.out, 'colors', scan_ids, colors)
-            save_npy(args.out, 'semantic_pred', scan_ids, sem_preds)
-            save_npy(args.out, 'semantic_label', scan_ids, sem_labels)
-            save_npy(args.out, 'offset_pred', scan_ids, offset_preds)
-            save_npy(args.out, 'offset_label', scan_ids, offset_labels)
-        if 'instance' in eval_tasks:
-            nyu_id = dataset.NYU_ID
-            save_pred_instances(args.out, 'pred_instance', scan_ids, pred_insts, nyu_id)
-            save_gt_instances(args.out, 'gt_instance', scan_ids, gt_insts, nyu_id)
-        if 'panoptic' in eval_tasks:
-            save_panoptic(args.out, 'panoptic', scan_ids, panoptic_preds, dataset.learning_map_inv,
-                          cfg.model.semantic_classes)
-    logger.info("end")
 
 if __name__ == '__main__':
     main()
